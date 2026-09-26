@@ -15,7 +15,7 @@ const client = new Client({
   database: process.env.DB_DATABASE,
 });
 
-await client.connect();
+const con=await client.connect();
 
 console.log("PostgreSQL connected");
 
@@ -26,6 +26,14 @@ app.get("/done", (req, res) => {
     message: "Todo API is working",
   });
 });
+app.post("/todo",async (req,res)=>{
+const {title}=req.body
+await client.query(`
+    INSERT INTO todos (title)
+    VALUES ('${title}')
+`);
+
+})
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
