@@ -5,6 +5,7 @@ import express from "express";
 dotenv.config();
 
 const app = express();
+app.use(express.json());
 const PORT = 5000;
 
 const client = new Client({
@@ -15,26 +16,51 @@ const client = new Client({
   database: process.env.DB_DATABASE,
 });
 
-const con=await client.connect();
+await client.connect();
 
 console.log("PostgreSQL connected");
 
-app.get("/done", (req, res) => {
-  console.log("done done");
+app.get("/all", async (req, res) => {
+  const result = await client.query(`SELECT * FROM todo`);
+  res.json({
+    message: "Todo API is working",
+    data: result.rows
+  });
+});
+app.delete("/delete/:id", async (req, res) => {
+  const { id } = req.params;
+  const result = await client.query(`DELETE FROM todo WHERE id = ${id}`)
+  res.json({
+    message: "todo deleted successfully",
+    result
+  })
+})
+app.put('/edit/:id', async (req, res) => {
+  const { title } = req.body;
+  const { id } = req.params;
+  const result = await client.query(`
+    UPDATE todo
+    SET title = '${title}'
+    WHERE id = ${id}
+    RETURNING *
+  `);
 
   res.json({
     message: "Todo API is working",
+    data: result.rows
   });
-});
-app.post("/todo",async (req,res)=>{
-const {title}=req.body
-await client.query(`
-    INSERT INTO todos (title)
+})
+app.post("/todo", async (req, res) => {
+  const { title } = req.body
+  const result = await client.query(`
+    INSERT INTO todo (title)
     VALUES ('${title}')
 `);
-
+  res.json({
+    reply: "done ha biru",
+    result
+  })
 })
-
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
