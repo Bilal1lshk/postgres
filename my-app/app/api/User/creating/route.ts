@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import { ErrorModule } from "next/dist/server/load-default-error-components";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { name, email, password } = body;
+ console.log("Received user data:", { name, email, password });
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -42,13 +44,23 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(user, { status: 201 });
-  } catch (error) {
-    console.error("User creation error:", error);
+  } catch (error: unknown) {
+  console.error("User creation error:", error);
 
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(
+    {
+      error: "Internal server error",
+      message:
+        error instanceof Error
+          ? error.message
+          : "An unknown error occurred",
+      stack:
+        error instanceof Error
+          ? error.stack
+          : undefined,
+    },
+    { status: 500 }
+  );
+}
 }
 
