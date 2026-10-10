@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
-import { ErrorModule } from "next/dist/server/load-default-error-components";
+import next from "next/dist/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,6 +42,8 @@ export async function POST(request: NextRequest) {
         createdat: true,
       },
     });
+    if(!user) return NextResponse.json({ message: "Failed to create user" }, { status: 500 });
+    console.log(user)
 
     return NextResponse.json(user, { status: 201 });
   } catch (error: unknown) {

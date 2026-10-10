@@ -1,11 +1,9 @@
-import Image from "next/image";
-import axios from "axios"
-export default function Home() {
- 
-  return (
-    <div className="">
-      <button >create user</button>
+import CreateUserForm from "./components/CreateUserForm";
 
+export default function Home() {
+  return (
+    <div className="flex flex-1 items-center justify-center p-8">
+      <CreateUserForm />
     </div>
   );
 }
